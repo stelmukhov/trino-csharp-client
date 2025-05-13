@@ -348,14 +348,10 @@ namespace Trino.Client
                 readCount++;
                 return responseQueueItem;
             }
-            catch (Exception)
+            catch (Exception) when (cancellationToken.IsCancellationRequested)
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    await this.Cancel(QueryCancellationReason.USER_CANCEL).ConfigureAwait(false);
-                    throw new OperationCanceledException("Cancellation requested");
-                }
-
+                await this.Cancel(QueryCancellationReason.USER_CANCEL).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
                 throw;
             }
         }
