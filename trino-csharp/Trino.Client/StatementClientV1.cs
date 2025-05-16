@@ -42,6 +42,8 @@ namespace Trino.Client
         private static readonly HashSet<HttpStatusCode> OK = new HashSet<HttpStatusCode> { HttpStatusCode.OK };
         private static readonly HashSet<HttpStatusCode> OKorNoContent = new HashSet<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NoContent };
 
+        private static JsonSerializerSettings SERIALIZER_SETTINGS = new JsonSerializerSettings { MaxDepth = 1024 };
+
         /// <summary>
         /// The default prefix for a parameterized query used when properties are provided.
         /// </summary>
@@ -302,7 +304,7 @@ namespace Trino.Client
 
                 string responseStr = await this.GetAsync(new Uri(this.Statement.nextUri), OK).ConfigureAwait(false);
                 logger?.LogDebug("Trino: response: {1}", responseStr);
-                QueryResultPage response = JsonConvert.DeserializeObject<QueryResultPage>(responseStr);
+                QueryResultPage response = JsonConvert.DeserializeObject<QueryResultPage>(responseStr, SERIALIZER_SETTINGS);
                 logger?.LogDebug("Trino: response at {0} msec with state {1}", stopwatch.ElapsedMilliseconds,
                     response.stats.state);
 
